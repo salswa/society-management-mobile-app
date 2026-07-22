@@ -1,0 +1,106 @@
+Apartment communities still run on gate calls, WhatsApp groups, paper registers and manual approvals.
+A delivery partner reaches the gate, the guard calls the flat, the resident misses the call, the visitor waits, and the whole process becomes slow for everyone.
+
+The same problem exists across many society workflows:
+- Guests waiting at the gate
+- Guests, delivery partners, cabs and service staff needing approval
+- Residents raising complaints
+- Admins sending notices
+- Members voting in polls
+- Families booking amenities
+- Maintenance payments and dues
+- Security guards handling entry records manually
+
+Your challenge is to build Portl, a mobile-first society management app that brings the society gate, resident communication and community operations into one seamless mobile experience.
+- Residents should be able to approve visitors, pre-approve guests, receive visitor requests, raise helpdesk tickets, book amenities, view notices, participate in community polls, pay maintenance dues and manage their daily interactions with the society.
+- Security guards should be able to register visitors, verify approvals, manage entry and exit, and maintain a real-time log of society movement.
+- Society admins should be able to manage residents, flats, towers, staff, service providers, amenities, notices, polls, complaints and day-to-day society operations from a centralized dashboard.
+
+The key product idea is simple:
+
+The conversations that used to happen at the society gate should now happen inside one community app.
+
+The platform should support multiple user roles such as Residents, Security Guards and Society Admins, each with their own dashboards, permissions and workflows. The experience should feel like a real mobile product that people would use every day.
+
+The app should include these core features:
+- Visitor & guest approvals
+- Delivery, cab & service staff approvals
+- Guard dashboard
+- Resident notifications
+- Helpdesk ticket management
+- Amenity booking
+- Society notice board
+- Community polls
+- Staff and service provider directory
+- Society admin dashboard
+- Visitor entry and exit history
+
+The project must be built using Expo and React Native. The goal is to build a production-ready mobile application that people living in an apartment community would actually use every day.
+
+Rules & Guidelines:Tech 
+- Project must be built using Expo and React Native
+- The application must be mobile-first
+- You are free to choose your backend and database
+- Proper state management should be implemented
+- Push notifications are recommended wherever appropriate
+
+User Roles : The application must support at least the following roles:
+- Resident
+- Security Guard
+- Society Admin
+Each role should have its own permissions and relevant workflows
+
+Authentication
+- Secure authentication must be implemented.
+- Role-based access should be supported.
+- Residents, Security Guards and Society Admins should only be able to access their own dashboards and workflows.
+
+Visitor Management
+- The platform must support:
+- Visitor entry requests
+- Visitor approval and rejection
+- Guest pre-approval
+- Delivery partner approvals
+- Entry and exit logs
+- Visitor history
+- The resident should be able to approve or deny visitors directly from the app.
+
+Community Management
+- Residents should be able to:
+- View society notices
+- Participate in polls
+- Raise helpdesk complaints
+- Track complaint status
+- Book amenities
+- View visitor history
+Society admins should be able to manage all of these modules.
+
+Society Administration
+Society admins should be able to manage:
+Towers
+Flats
+Residents
+Amenities
+Notices
+Polls
+Complaints
+Staff and Service Providers
+
+Guard Operations
+- Security guards should be able to:
+- Register visitors
+- Search residents
+- Raise approval requests
+- Verify approvals
+- Mark visitor entry
+- Mark visitor exit
+- View visitor history
+
+Mobile Experience
+- The application should provide:
+- Clean mobile navigation
+- ast approval flows
+- Responsive layouts
+- Loading and empty states
+- Proper error handling
+- Good overall user experience

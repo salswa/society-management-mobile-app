@@ -1,0 +1,241 @@
+### Portl API — end-to-end walkthrough (VS Code "REST Client" extension)
+### Run top to bottom. Named requests feed tokens/ids into later ones.
+
+@baseUrl = http://localhost:4000/api
+
+### Health
+GET {{baseUrl}}/health
+
+# =====================================================================
+# ADMIN (created by `npm run seed`)
+# =====================================================================
+
+# @name adminLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "email": "admin@portl.app", "password": "admin123" }
+
+###
+@adminToken = {{adminLogin.response.body.session.access_token}}
+
+### Who am I
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{adminToken}}
+
+### Admin: create a tower
+# @name createTower
+POST {{baseUrl}}/towers
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "name": "Tower A" }
+
+###
+@towerId = {{createTower.response.body.tower.id}}
+
+### Admin: create a flat
+# @name createFlat
+POST {{baseUrl}}/flats
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "tower_id": "{{towerId}}", "number": "A-101", "floor": 1 }
+
+###
+@flatId = {{createFlat.response.body.flat.id}}
+
+### Admin: create a resident linked to the flat
+# @name createResident
+POST {{baseUrl}}/residents
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "email": "riya@example.com",
+  "password": "riya123",
+  "name": "Riya Sharma",
+  "role": "resident",
+  "phone": "+919000000001",
+  "flat_id": "{{flatId}}",
+  "is_primary": true
+}
+
+### Admin: create a guard
+# @name createGuard
+POST {{baseUrl}}/residents
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "email": "guard@example.com", "password": "guard123", "name": "Gate Guard", "role": "guard" }
+
+### Admin: create an amenity
+# @name createAmenity
+POST {{baseUrl}}/amenities
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "name": "Clubhouse", "capacity": 1, "slot_minutes": 60 }
+
+###
+@amenityId = {{createAmenity.response.body.amenity.id}}
+
+### Admin: post a notice
+POST {{baseUrl}}/notices
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "title": "Water shutdown", "body": "Water supply off 10am-12pm Sunday.", "is_pinned": true }
+
+### Admin: create a poll
+# @name createPoll
+POST {{baseUrl}}/polls
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "question": "Paint the lobby which color?",
+  "options": ["Beige", "Grey", "White"]
+}
+
+###
+@pollId = {{createPoll.response.body.poll.id}}
+
+### Admin: add a service provider to the directory
+POST {{baseUrl}}/staff
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "name": "Ravi Plumbing", "kind": "service_provider", "category": "plumber", "phone": "+919000000009" }
+
+# =====================================================================
+# RESIDENT
+# =====================================================================
+
+# @name residentLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "email": "riya@example.com", "password": "riya123" }
+
+###
+@residentToken = {{residentLogin.response.body.session.access_token}}
+
+### Resident: raise a complaint
+# @name createComplaint
+POST {{baseUrl}}/complaints
+Authorization: Bearer {{residentToken}}
+Content-Type: application/json
+
+{ "title": "Lift not working", "description": "Tower A lift stuck on 3rd floor", "priority": "high" }
+
+###
+@complaintId = {{createComplaint.response.body.complaint.id}}
+
+### Resident: comment on the complaint
+POST {{baseUrl}}/complaints/{{complaintId}}/comments
+Authorization: Bearer {{residentToken}}
+Content-Type: application/json
+
+{ "body": "Still not fixed as of this morning." }
+
+### Resident: book the clubhouse
+POST {{baseUrl}}/bookings
+Authorization: Bearer {{residentToken}}
+Content-Type: application/json
+
+{
+  "amenity_id": "{{amenityId}}",
+  "start_time": "2026-08-01T10:00:00Z",
+  "end_time": "2026-08-01T11:00:00Z",
+  "flat_id": "{{flatId}}"
+}
+
+### Resident: vote in the poll (fetch option ids first)
+# @name getPoll
+GET {{baseUrl}}/polls/{{pollId}}
+Authorization: Bearer {{residentToken}}
+
+###
+POST {{baseUrl}}/polls/{{pollId}}/vote
+Authorization: Bearer {{residentToken}}
+Content-Type: application/json
+
+{ "option_ids": ["{{getPoll.response.body.poll.options.0.id}}"] }
+
+### Resident: pre-approve an expected guest
+# @name preApprove
+POST {{baseUrl}}/visitors
+Authorization: Bearer {{residentToken}}
+Content-Type: application/json
+
+{
+  "flat_id": "{{flatId}}",
+  "name": "Amit (cousin)",
+  "type": "guest",
+  "expected_at": "2026-08-01T18:00:00Z"
+}
+
+# =====================================================================
+# GUARD
+# =====================================================================
+
+# @name guardLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "email": "guard@example.com", "password": "guard123" }
+
+###
+@guardToken = {{guardLogin.response.body.session.access_token}}
+
+### Guard: search residents
+GET {{baseUrl}}/residents/search?q=A-101
+Authorization: Bearer {{guardToken}}
+
+### Guard: register an arriving delivery (pending resident approval)
+# @name registerVisitor
+POST {{baseUrl}}/visitors
+Authorization: Bearer {{guardToken}}
+Content-Type: application/json
+
+{ "flat_id": "{{flatId}}", "name": "Zomato Rider", "type": "delivery", "purpose": "Food delivery" }
+
+###
+@visitorId = {{registerVisitor.response.body.visitor.id}}
+
+### Resident: approve the visitor
+POST {{baseUrl}}/visitors/{{visitorId}}/approve
+Authorization: Bearer {{residentToken}}
+
+### Guard: mark entry
+POST {{baseUrl}}/visitors/{{visitorId}}/check-in
+Authorization: Bearer {{guardToken}}
+
+### Guard: mark exit
+POST {{baseUrl}}/visitors/{{visitorId}}/check-out
+Authorization: Bearer {{guardToken}}
+
+### Guard: visitor history (checked-out)
+GET {{baseUrl}}/visitors/history
+Authorization: Bearer {{guardToken}}
+
+# =====================================================================
+# NEGATIVE CHECKS
+# =====================================================================
+
+### 401 — no token
+GET {{baseUrl}}/auth/me
+
+### 403 — resident tries an admin-only action
+POST {{baseUrl}}/towers
+Authorization: Bearer {{residentToken}}
+Content-Type: application/json
+
+{ "name": "Hacker Tower" }
+
+### 400 — invalid body
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "email": "nope", "password": "1" }

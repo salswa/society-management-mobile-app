@@ -1,0 +1,23 @@
+# Render blueprint for the Portl backend.
+# In Render: New + → Blueprint → pick this repo. It reads this file.
+# Then set the three secret env vars (marked sync:false) in the dashboard.
+services:
+  - type: web
+    name: portl-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    # --include=dev ensures TypeScript (a devDependency) is available for the build.
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
