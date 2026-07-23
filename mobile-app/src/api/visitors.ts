@@ -5,6 +5,8 @@ export type VisitorFilters = {
   status?: VisitorStatus;
   type?: VisitorType;
   flat_id?: string;
+  /** Scope the list to the caller's own flats (resident experience). */
+  mine?: boolean;
   limit?: number;
   offset?: number;
 };

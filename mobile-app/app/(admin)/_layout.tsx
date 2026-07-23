@@ -5,11 +5,13 @@ import { Loading } from '@/components';
 import { floatingTabScreenOptions } from '@/theme/navOptions';
 
 export default function AdminLayout() {
-  const { status, profile } = useAuth();
+  const { status, profile, viewMode } = useAuth();
 
   if (status === 'loading') return <Loading />;
   if (status === 'unauthenticated' || !profile) return <Redirect href="/(auth)/login" />;
   if (profile.role !== 'admin') return <Redirect href="/" />;
+  if (viewMode === null) return <Redirect href="/choose-mode" />;
+  if (viewMode === 'resident') return <Redirect href="/(resident)" />;
 
   return (
     <Tabs screenOptions={floatingTabScreenOptions}>

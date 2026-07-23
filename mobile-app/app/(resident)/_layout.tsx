@@ -5,11 +5,14 @@ import { Loading } from '@/components';
 import { floatingTabScreenOptions } from '@/theme/navOptions';
 
 export default function ResidentLayout() {
-  const { status, profile } = useAuth();
+  const { status, profile, viewMode } = useAuth();
 
   if (status === 'loading') return <Loading />;
   if (status === 'unauthenticated' || !profile) return <Redirect href="/(auth)/login" />;
-  if (profile.role !== 'resident') return <Redirect href="/" />;
+  // Residents always; admins only while viewing the resident experience.
+  const allowed =
+    profile.role === 'resident' || (profile.role === 'admin' && viewMode === 'resident');
+  if (!allowed) return <Redirect href="/" />;
 
   return (
     <Tabs screenOptions={floatingTabScreenOptions}>

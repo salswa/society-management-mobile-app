@@ -29,6 +29,12 @@ const listQuery = paginationSchema.extend({
   flat_id: uuidSchema.optional(),
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),
+  // Scope to the caller's own flats regardless of role (used by an admin
+  // viewing the resident experience). Residents are already flat-scoped.
+  mine: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((v) => v === 'true'),
 });
 
 export const visitorsRouter = Router();

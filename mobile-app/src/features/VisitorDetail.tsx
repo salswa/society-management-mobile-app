@@ -9,7 +9,7 @@ import { colors, radius, spacing } from '@/theme/tokens';
 
 /** Shared visitor detail + role-appropriate actions (resident/guard/admin). */
 export function VisitorDetail({ id }: { id: string }) {
-  const { profile } = useAuth();
+  const { profile, viewMode } = useAuth();
   const { data: visitor, isLoading, isError, refetch } = useVisitor(id);
   const action = useVisitorAction();
 
@@ -20,9 +20,14 @@ export function VisitorDetail({ id }: { id: string }) {
   const status = visitorStatusMeta(visitor.status);
   const type = visitorTypeMeta(visitor.type);
 
-  const canDecide = (role === 'resident' || role === 'admin') && visitor.status === 'pending';
-  const canCheckIn = (role === 'guard' || role === 'admin') && visitor.status === 'approved';
-  const canCheckOut = (role === 'guard' || role === 'admin') && visitor.status === 'checked_in';
+  // An admin acts as a resident only while in resident view; in admin view the
+  // detail is read-only — no approving or marking entry/exit for other residents.
+  const actingAsResident = role === 'resident' || (role === 'admin' && viewMode === 'resident');
+  const actingAsGuard = role === 'guard';
+
+  const canDecide = actingAsResident && visitor.status === 'pending';
+  const canCheckIn = actingAsGuard && visitor.status === 'approved';
+  const canCheckOut = actingAsGuard && visitor.status === 'checked_in';
 
   const run = (act: 'approve' | 'reject' | 'checkIn' | 'checkOut') => {
     action.mutate(

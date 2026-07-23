@@ -36,6 +36,7 @@ async function main() {
   }
 
   // 2. Admin profile
+  let adminId: string;
   const existingAdmin = await supabaseAdmin
     .from('profiles')
     .select('id, role')
@@ -43,7 +44,8 @@ async function main() {
     .maybeSingle();
 
   if (existingAdmin.data) {
-    console.log(`Admin with email ${ADMIN_EMAIL} already exists (${existingAdmin.data.id})`);
+    adminId = existingAdmin.data.id;
+    console.log(`Admin with email ${ADMIN_EMAIL} already exists (${adminId})`);
   } else {
     const created = await supabaseAdmin.auth.admin.createUser({
       email: ADMIN_EMAIL,
@@ -67,13 +69,18 @@ async function main() {
       await supabaseAdmin.auth.admin.deleteUser(created.data.user.id).catch(() => undefined);
       throw profile.error;
     }
-    console.log(`Created admin "${ADMIN_NAME}" (${created.data.user.id})`);
+    adminId = created.data.user.id;
+    console.log(`Created admin "${ADMIN_NAME}" (${adminId})`);
   }
 
   // 3. Demo data so the mobile app is testable end-to-end immediately.
   const tower = await ensureTower(societyId, 'Tower A');
   const flat101 = await ensureFlat(societyId, tower, 'A-101', 1);
-  await ensureFlat(societyId, tower, 'A-102', 1);
+  const flat102 = await ensureFlat(societyId, tower, 'A-102', 1);
+
+  // The admin also lives on-site (flat A-102), so the dual Admin/Resident
+  // experience is testable immediately.
+  await ensureFlatLink(flat102, adminId);
 
   const residentId = await ensureMember({
     societyId,
@@ -94,7 +101,7 @@ async function main() {
   });
 
   console.log('\nSeed complete. Accounts:');
-  console.log(`  admin    → ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
+  console.log(`  admin    → ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}  (also resident of A-102)`);
   console.log('  resident → riya@example.com / riya123  (flat A-101)');
   console.log('  guard    → guard@example.com / guard123');
 }

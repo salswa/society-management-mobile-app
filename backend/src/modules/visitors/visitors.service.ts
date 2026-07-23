@@ -86,6 +86,7 @@ type ListFilters = {
   flat_id?: string;
   from?: string;
   to?: string;
+  mine?: boolean;
   limit: number;
   offset: number;
 };
@@ -99,7 +100,9 @@ export async function listVisitors(actor: Profile, filters: ListFilters): Promis
     .order('created_at', { ascending: false })
     .range(filters.offset, filters.offset + filters.limit - 1);
 
-  if (actor.role === 'resident') {
+  // Residents are always scoped to their flats; `mine` lets any role (e.g. an
+  // admin viewing the resident experience) opt into the same scoping.
+  if (actor.role === 'resident' || filters.mine) {
     const flatIds = await residentFlatIds(actor.id);
     if (flatIds.length === 0) return [];
     q = q.in('flat_id', flatIds);

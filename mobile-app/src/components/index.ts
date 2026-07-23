@@ -16,3 +16,4 @@ export { ChoiceChips } from './ChoiceChips';
 export { SectionTitle } from './SectionTitle';
 export { NoticeHero } from './NoticeHero';
 export { TopBar } from './TopBar';
+export { ViewModeSwitcher } from './ViewModeSwitcher';

@@ -30,7 +30,10 @@ const EMPTY: Record<string, { title: string; message: string }> = {
 export default function ResidentVisitors() {
   const router = useRouter();
   const [filter, setFilter] = useState<VisitorStatus | undefined>(undefined);
-  const { data, isLoading, isError, refetch, isRefetching } = useVisitors({ status: filter });
+  const { data, isLoading, isError, refetch, isRefetching } = useVisitors({
+    status: filter,
+    mine: true,
+  });
 
   const empty = EMPTY[filter ?? 'all'] ?? EMPTY.all;
   const open = (id: string) => router.push(`/(resident)/visitors/${id}`);

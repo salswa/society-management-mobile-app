@@ -6,7 +6,7 @@ import { colors } from '@/theme/tokens';
 
 /** Entry gate: routes to the right stack based on auth + role. */
 export default function Index() {
-  const { status, profile } = useAuth();
+  const { status, profile, viewMode } = useAuth();
 
   if (status === 'loading') {
     return (
@@ -26,6 +26,9 @@ export default function Index() {
   }
 
   if (profile.role === 'guard') return <Redirect href="/(guard)" />;
-  if (profile.role === 'admin') return <Redirect href="/(admin)" />;
+  if (profile.role === 'admin') {
+    if (viewMode === null) return <Redirect href="/choose-mode" />;
+    return <Redirect href={viewMode === 'resident' ? '/(resident)' : '/(admin)'} />;
+  }
   return <Redirect href="/(resident)" />;
 }

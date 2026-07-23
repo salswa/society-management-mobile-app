@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/auth/AuthContext';
 import { useNotices, useVisitors } from '@/query/hooks';
-import { Button, Card, Screen, Text } from '@/components';
+import { Button, Card, Screen, Text, ViewModeSwitcher } from '@/components';
 import { colors, radius, spacing } from '@/theme/tokens';
 
 export default function AdminHome() {
@@ -27,12 +27,15 @@ export default function AdminHome() {
 
   return (
     <Screen scroll tabbarSpace refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-      <Text variant="small" color={colors.textMuted}>
-        Society admin
-      </Text>
-      <Text variant="h1" style={{ marginBottom: spacing.lg }}>
-        {profile?.name?.split(' ')[0] ?? 'Admin'}
-      </Text>
+      <View style={styles.header}>
+        <View>
+          <Text variant="small" color={colors.textMuted}>
+            Society admin
+          </Text>
+          <Text variant="h1">{profile?.name?.split(' ')[0] ?? 'Admin'}</Text>
+        </View>
+        <ViewModeSwitcher />
+      </View>
 
       <View style={styles.stats}>
         <Stat label="Pending" value={pending} tone={colors.warning} icon="hourglass-outline" />
@@ -96,6 +99,12 @@ function Stat({
 }
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
   stats: { flexDirection: 'row', gap: spacing.sm },
   stat: { flex: 1, alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.lg, borderRadius: radius.lg },
   block: { marginTop: spacing.lg, gap: spacing.xs },

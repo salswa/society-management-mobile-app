@@ -10,14 +10,21 @@ import {
 } from 'react';
 import { authApi } from '@/api/auth';
 import { setAuthHandlers } from '@/api/client';
+import { queryClient } from '@/query/queryClient';
 import type { Profile, Session } from '@/api/types';
 import { clearSession, loadSession, saveSession } from './storage';
 
 type Status = 'loading' | 'authenticated' | 'unauthenticated';
 
+/** Which experience an admin is currently viewing. Only meaningful for admins
+ *  who also have a flat; `null` = not yet chosen this session (show the chooser). */
+export type ViewMode = 'admin' | 'resident';
+
 type AuthContextValue = {
   status: Status;
   profile: Profile | null;
+  viewMode: ViewMode | null;
+  setViewMode: (mode: ViewMode) => void;
   login: (email: string, password: string) => Promise<void>;
   register: (input: {
     email: string;
@@ -35,12 +42,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const sessionRef = useRef<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  // In-memory only: an admin re-picks their view on each fresh login/launch.
+  const [viewMode, setViewMode] = useState<ViewMode | null>(null);
 
   const localSignOut = useCallback(async () => {
     sessionRef.current = null;
     await clearSession();
     setProfile(null);
+    setViewMode(null);
     setStatus('unauthenticated');
+    // Drop every cached query so the next user never sees the previous one's data.
+    queryClient.clear();
   }, []);
 
   const setSession = useCallback(async (session: Session) => {
@@ -127,8 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ status, profile, login, register, logout, refetchProfile }),
-    [status, profile, login, register, logout, refetchProfile]
+    () => ({ status, profile, viewMode, setViewMode, login, register, logout, refetchProfile }),
+    [status, profile, viewMode, login, register, logout, refetchProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -16,6 +16,7 @@ import {
   Screen,
   SectionTitle,
   Text,
+  ViewModeSwitcher,
   VisitorActionRow,
   VisitorCard,
 } from "@/components";
@@ -26,7 +27,7 @@ export default function ResidentHome() {
   const qc = useQueryClient();
   const { profile } = useAuth();
   const me = useMyProfile();
-  const visitors = useVisitors({ limit: 20 });
+  const visitors = useVisitors({ limit: 20, mine: true });
   const notices = useNotices();
 
   const latestNotice = notices.data?.[0];
@@ -61,10 +62,14 @@ export default function ResidentHome() {
               {profile?.name?.split(" ")[0] ?? "Resident"}
             </Text>
           </View>
-          <View style={styles.flatPill}>
-            <Ionicons name="person-outline" size={12} color={colors.ink} />
-            <Text variant="label">Resident</Text>
-          </View>
+          {profile?.role === "admin" ? (
+            <ViewModeSwitcher />
+          ) : (
+            <View style={styles.flatPill}>
+              <Ionicons name="person-outline" size={12} color={colors.ink} />
+              <Text variant="label">Resident</Text>
+            </View>
+          )}
         </View>
 
         {latestNotice ? (

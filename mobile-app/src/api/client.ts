@@ -32,7 +32,7 @@ export function setAuthHandlers(h: AuthHandlers) {
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   body?: unknown;
-  query?: Record<string, string | number | undefined>;
+  query?: Record<string, string | number | boolean | undefined>;
   auth?: boolean; // default true
 };
 

@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useAuth } from '@/auth/AuthContext';
 import { useMyProfile } from '@/query/hooks';
-import { Badge, Button, Card, Screen, Text, type Tone } from '@/components';
+import { Badge, Button, Card, Screen, Text, ViewModeSwitcher, type Tone } from '@/components';
 import { flatLabel } from '@/lib/format';
 import { colors, radius, spacing } from '@/theme/tokens';
 
@@ -41,6 +41,8 @@ export function ProfileScreen() {
           </Text>
           <Badge label={role.label} tone={role.tone} style={styles.roleBadge} />
         </Card>
+
+        <ViewModeSwitcher variant="row" />
 
         {profile.role === 'resident' ? (
           <Card style={styles.section}>
