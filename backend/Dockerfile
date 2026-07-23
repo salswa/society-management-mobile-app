@@ -1,5 +1,5 @@
 # Universal container image — works on Railway, Fly.io, Cloud Run, Render (Docker), etc.
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install --include=dev
