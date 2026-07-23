@@ -70,9 +70,123 @@ async function main() {
     console.log(`Created admin "${ADMIN_NAME}" (${created.data.user.id})`);
   }
 
-  console.log('\nSeed complete. Log in with:');
-  console.log(`  email:    ${ADMIN_EMAIL}`);
-  console.log(`  password: ${ADMIN_PASSWORD}`);
+  // 3. Demo data so the mobile app is testable end-to-end immediately.
+  const tower = await ensureTower(societyId, 'Tower A');
+  const flat101 = await ensureFlat(societyId, tower, 'A-101', 1);
+  await ensureFlat(societyId, tower, 'A-102', 1);
+
+  const residentId = await ensureMember({
+    societyId,
+    email: 'riya@example.com',
+    password: 'riya123',
+    name: 'Riya Sharma',
+    role: 'resident',
+    phone: '+919000000001',
+  });
+  await ensureFlatLink(flat101, residentId);
+
+  await ensureMember({
+    societyId,
+    email: 'guard@example.com',
+    password: 'guard123',
+    name: 'Gate Guard',
+    role: 'guard',
+  });
+
+  console.log('\nSeed complete. Accounts:');
+  console.log(`  admin    → ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
+  console.log('  resident → riya@example.com / riya123  (flat A-101)');
+  console.log('  guard    → guard@example.com / guard123');
+}
+
+async function ensureTower(societyId: string, name: string): Promise<string> {
+  const existing = await supabaseAdmin
+    .from('towers')
+    .select('id')
+    .eq('society_id', societyId)
+    .eq('name', name)
+    .maybeSingle();
+  if (existing.data) return existing.data.id;
+  const created = await supabaseAdmin
+    .from('towers')
+    .insert({ society_id: societyId, name })
+    .select('id')
+    .single();
+  if (created.error) throw created.error;
+  console.log(`Created tower "${name}"`);
+  return created.data.id;
+}
+
+async function ensureFlat(
+  societyId: string,
+  towerId: string,
+  number: string,
+  floor: number
+): Promise<string> {
+  const existing = await supabaseAdmin
+    .from('flats')
+    .select('id')
+    .eq('tower_id', towerId)
+    .eq('number', number)
+    .maybeSingle();
+  if (existing.data) return existing.data.id;
+  const created = await supabaseAdmin
+    .from('flats')
+    .insert({ society_id: societyId, tower_id: towerId, number, floor })
+    .select('id')
+    .single();
+  if (created.error) throw created.error;
+  console.log(`Created flat "${number}"`);
+  return created.data.id;
+}
+
+async function ensureMember(input: {
+  societyId: string;
+  email: string;
+  password: string;
+  name: string;
+  role: 'resident' | 'guard';
+  phone?: string;
+}): Promise<string> {
+  const existing = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('email', input.email)
+    .maybeSingle();
+  if (existing.data) return existing.data.id;
+
+  const created = await supabaseAdmin.auth.admin.createUser({
+    email: input.email,
+    password: input.password,
+    email_confirm: true,
+    user_metadata: { name: input.name },
+  });
+  if (created.error || !created.data.user) {
+    throw created.error ?? new Error(`Failed to create ${input.email}`);
+  }
+
+  const profile = await supabaseAdmin.from('profiles').insert({
+    id: created.data.user.id,
+    society_id: input.societyId,
+    email: input.email,
+    phone: input.phone ?? null,
+    name: input.name,
+    role: input.role,
+    status: 'active',
+  });
+  if (profile.error) {
+    await supabaseAdmin.auth.admin.deleteUser(created.data.user.id).catch(() => undefined);
+    throw profile.error;
+  }
+  console.log(`Created ${input.role} "${input.name}" (${input.email})`);
+  return created.data.user.id;
+}
+
+async function ensureFlatLink(flatId: string, profileId: string): Promise<void> {
+  await supabaseAdmin.from('flat_residents').upsert(
+    { flat_id: flatId, profile_id: profileId, is_owner: true, is_primary: true },
+    { onConflict: 'flat_id,profile_id' }
+  );
 }
 
 main()

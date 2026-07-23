@@ -22,7 +22,14 @@ profileRouter.use(authenticate);
 profileRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    res.json({ profile: profileOf(req) });
+    const me = profileOf(req);
+    const flats = unwrap(
+      await supabaseAdmin
+        .from('flat_residents')
+        .select('is_owner, is_primary, flat:flats(id, number, tower:towers(name))')
+        .eq('profile_id', me.id)
+    );
+    res.json({ profile: me, flats });
   })
 );
 
