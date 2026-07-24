@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../../lib/supabase';
-import { AppError, conflict } from '../../lib/errors';
+import { AppError, conflict, forbidden, notFound } from '../../lib/errors';
 import { unwrap } from '../../lib/db';
 import type { Profile, UserRole } from '../../types/database.types';
 
@@ -139,4 +139,32 @@ export async function setStatus(input: {
       .select('*')
       .single()
   );
+}
+
+/**
+ * Removes a member: rejecting a pending sign-up or deleting an existing account.
+ * Allowed for members of the admin's society, or an unassigned pending sign-up.
+ * Deleting the auth user cascades to the profile and its flat_residents links;
+ * visitor rows they created keep their history (created_by/approved_by → null).
+ */
+export async function deleteMember(input: {
+  society_id: string;
+  profile_id: string;
+}): Promise<void> {
+  const target = await supabaseAdmin
+    .from('profiles')
+    .select('id, society_id, status')
+    .eq('id', input.profile_id)
+    .maybeSingle();
+  if (!target.data) throw notFound('Member not found');
+
+  const inSociety = target.data.society_id === input.society_id;
+  const isUnassignedPending =
+    target.data.society_id === null && target.data.status === 'pending';
+  if (!inSociety && !isUnassignedPending) {
+    throw forbidden('Member is not in your society');
+  }
+
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(input.profile_id);
+  if (error) throw new AppError(500, 'auth_error', error.message);
 }

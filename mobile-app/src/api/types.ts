@@ -35,6 +35,20 @@ export type FlatRef = {
   tower?: { name: string } | null;
 };
 
+/** A flat as returned by GET /flats (admin flat picker). */
+export type Flat = {
+  id: string;
+  number: string;
+  floor: number | null;
+  tower_id: string;
+  tower?: { name: string } | null;
+};
+
+/** A society member as returned by the admin GET /residents. */
+export type Member = Profile & {
+  flat_residents: Array<{ flat: FlatRef | null }>;
+};
+
 export type Visitor = {
   id: string;
   society_id: string;

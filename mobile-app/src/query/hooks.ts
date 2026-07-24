@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { visitorsApi, type CreateVisitorInput, type VisitorFilters } from '@/api/visitors';
 import { noticesApi, type CreateNoticeInput } from '@/api/notices';
-import { residentsApi } from '@/api/residents';
+import { residentsApi, type ResidentListFilters } from '@/api/residents';
+import { flatsApi } from '@/api/flats';
 import { profileApi } from '@/api/profile';
 
 // --- Query keys -------------------------------------------------------------
@@ -13,6 +14,8 @@ export const keys = {
   notices: () => ['notices'] as const,
   notice: (id: string) => ['notice', id] as const,
   residentSearch: (q: string) => ['residents', 'search', q] as const,
+  residents: (filters?: ResidentListFilters) => ['residents', 'list', filters ?? {}] as const,
+  flats: () => ['flats'] as const,
 };
 
 // --- Profile ----------------------------------------------------------------
@@ -104,5 +107,61 @@ export function useResidentSearch(q: string) {
     queryKey: keys.residentSearch(q),
     queryFn: () => residentsApi.search(q),
     enabled: q.trim().length > 0,
+  });
+}
+
+// --- Members & flats (admin) ------------------------------------------------
+export function useResidents(filters: ResidentListFilters = {}) {
+  return useQuery({
+    queryKey: keys.residents(filters),
+    queryFn: () => residentsApi.list(filters).then((r) => r.residents),
+  });
+}
+
+export function useFlats() {
+  return useQuery({
+    queryKey: keys.flats(),
+    queryFn: () => flatsApi.list().then((r) => r.flats),
+  });
+}
+
+/** Invalidate every members list after a mutation. */
+function useInvalidateResidents() {
+  const qc = useQueryClient();
+  return () => qc.invalidateQueries({ queryKey: ['residents'] });
+}
+
+export function useApproveResident() {
+  const invalidate = useInvalidateResidents();
+  return useMutation({
+    mutationFn: ({ id, flatId }: { id: string; flatId?: string }) =>
+      residentsApi.approve(id, flatId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSetResidentStatus() {
+  const invalidate = useInvalidateResidents();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: 'active' | 'disabled' }) =>
+      residentsApi.setStatus(id, status),
+    onSuccess: invalidate,
+  });
+}
+
+export function useAssignResidentFlat() {
+  const invalidate = useInvalidateResidents();
+  return useMutation({
+    mutationFn: ({ id, flatId }: { id: string; flatId: string }) =>
+      residentsApi.assignFlat(id, flatId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteResident() {
+  const invalidate = useInvalidateResidents();
+  return useMutation({
+    mutationFn: (id: string) => residentsApi.remove(id),
+    onSuccess: invalidate,
   });
 }

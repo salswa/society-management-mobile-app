@@ -68,7 +68,7 @@ export default function AdminHome() {
         <Button
           title="Open visitor log"
           variant="secondary"
-          onPress={() => router.push('/(admin)/visitors')}
+          onPress={() => router.push('/(admin)/log')}
           style={{ marginTop: spacing.sm }}
         />
       </Card>

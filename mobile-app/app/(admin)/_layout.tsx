@@ -1,8 +1,9 @@
-import { Redirect, Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Redirect } from 'expo-router';
+import { Drawer } from 'expo-router/drawer';
 import { useAuth } from '@/auth/AuthContext';
 import { Loading } from '@/components';
-import { floatingTabScreenOptions } from '@/theme/navOptions';
+import { AdminPanel } from '@/features/admin/AdminPanel';
+import { AdminDrawerProvider, useAdminDrawer } from '@/features/admin/drawerContext';
 
 export default function AdminLayout() {
   const { status, profile, viewMode } = useAuth();
@@ -14,42 +15,30 @@ export default function AdminLayout() {
   if (viewMode === 'resident') return <Redirect href="/(resident)" />;
 
   return (
-    <Tabs screenOptions={floatingTabScreenOptions}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Overview',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="stats-chart-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="visitors"
-        options={{
-          title: 'Visitors',
-          tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="notices"
-        options={{
-          title: 'Notices',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="megaphone-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen name="visitor/[id]" options={{ href: null }} />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" color={color} size={size} />
-          ),
-        }}
-      />
-    </Tabs>
+    <AdminDrawerProvider>
+      <AdminDrawerNavigator />
+    </AdminDrawerProvider>
+  );
+}
+
+/** Right-side drawer whose content (Manage / Community) is driven by which tab
+ *  was pressed. The bottom tabs live in the nested (tabs) group. */
+function AdminDrawerNavigator() {
+  const { panel } = useAdminDrawer();
+  return (
+    <Drawer
+      screenOptions={{
+        headerShown: false,
+        drawerPosition: 'right',
+        drawerType: 'front',
+        swipeEnabled: false,
+        drawerStyle: { width: '84%' },
+      }}
+      drawerContent={(props) => (
+        <AdminPanel kind={panel} onClose={() => props.navigation.closeDrawer()} />
+      )}
+    >
+      <Drawer.Screen name="(tabs)" />
+    </Drawer>
   );
 }

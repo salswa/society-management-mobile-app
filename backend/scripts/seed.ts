@@ -100,10 +100,20 @@ async function main() {
     role: 'guard',
   });
 
+  // A self-registered, not-yet-approved resident (no society, no flat) so the
+  // admin's Residents "Pending requests" flow is testable immediately.
+  await ensurePendingSignup({
+    email: 'pending@example.com',
+    password: 'pending123',
+    name: 'Neha Verma',
+    phone: '+919000000002',
+  });
+
   console.log('\nSeed complete. Accounts:');
   console.log(`  admin    → ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}  (also resident of A-102)`);
   console.log('  resident → riya@example.com / riya123  (flat A-101)');
   console.log('  guard    → guard@example.com / guard123');
+  console.log('  pending  → pending@example.com / pending123  (awaiting admin approval)');
 }
 
 async function ensureTower(societyId: string, name: string): Promise<string> {
@@ -187,6 +197,49 @@ async function ensureMember(input: {
   }
   console.log(`Created ${input.role} "${input.name}" (${input.email})`);
   return created.data.user.id;
+}
+
+async function ensurePendingSignup(input: {
+  email: string;
+  password: string;
+  name: string;
+  phone?: string;
+}): Promise<void> {
+  const existing = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('email', input.email)
+    .maybeSingle();
+  if (existing.data) {
+    console.log(`Pending signup ${input.email} already exists`);
+    return;
+  }
+
+  const created = await supabaseAdmin.auth.admin.createUser({
+    email: input.email,
+    password: input.password,
+    email_confirm: true,
+    user_metadata: { name: input.name },
+  });
+  if (created.error || !created.data.user) {
+    throw created.error ?? new Error(`Failed to create ${input.email}`);
+  }
+
+  // Mirrors self-registration: no society, no flat, status pending.
+  const profile = await supabaseAdmin.from('profiles').insert({
+    id: created.data.user.id,
+    society_id: null,
+    email: input.email,
+    phone: input.phone ?? null,
+    name: input.name,
+    role: 'resident',
+    status: 'pending',
+  });
+  if (profile.error) {
+    await supabaseAdmin.auth.admin.deleteUser(created.data.user.id).catch(() => undefined);
+    throw profile.error;
+  }
+  console.log(`Created pending signup "${input.name}" (${input.email})`);
 }
 
 async function ensureFlatLink(flatId: string, profileId: string): Promise<void> {

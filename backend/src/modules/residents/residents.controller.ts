@@ -78,11 +78,19 @@ residentsRouter.get(
   validate({ query: listQuery }),
   asyncHandler(async (req, res) => {
     const { role, status } = query<typeof listQuery>(req);
+    const societyId = societyIdOf(req);
     let q = supabaseAdmin
       .from('profiles')
       .select('*, flat_residents(flat:flats(id, number, tower:towers(name)))')
-      .eq('society_id', societyIdOf(req))
       .order('created_at', { ascending: false });
+
+    // Self-registered sign-ups have society_id = null until approved; surface
+    // them (only under the pending filter) so the admin can approve/reject.
+    if (status === 'pending') {
+      q = q.or(`society_id.eq.${societyId},society_id.is.null`);
+    } else {
+      q = q.eq('society_id', societyId);
+    }
     if (role) q = q.eq('role', role);
     if (status) q = q.eq('status', status);
     res.json({ residents: unwrap(await q) });
@@ -135,6 +143,20 @@ residentsRouter.post(
   asyncHandler(async (req, res) => {
     const input = body<typeof assignFlatBody>(req);
     await service.assignFlat({ profile_id: params<typeof idParam>(req).id, ...input });
+    res.status(204).end();
+  })
+);
+
+// Reject a pending sign-up or remove an existing member.
+residentsRouter.delete(
+  '/:id',
+  requireRole('admin'),
+  validate({ params: idParam }),
+  asyncHandler(async (req, res) => {
+    await service.deleteMember({
+      society_id: societyIdOf(req),
+      profile_id: params<typeof idParam>(req).id,
+    });
     res.status(204).end();
   })
 );
