@@ -68,8 +68,8 @@ export default function ResidentHome() {
         {latestNotice ? (
           <NoticeHero
             title={latestNotice.title}
+            body={latestNotice.body}
             publishedAt={latestNotice.published_at}
-            badge={latestNotice.is_pinned ? "Pinned" : "Notice"}
             onPress={() =>
               router.push(`/(resident)/notices/${latestNotice.id}`)
             }
@@ -96,23 +96,27 @@ export default function ResidentHome() {
         <View style={styles.grid}>
           <QuickAction
             label="Pre-Approve"
+            icon="person-add-outline"
             onPress={() => router.push("/(resident)/pre-approve")}
           />
           <QuickAction
             label="Amenity"
+            icon="calendar-outline"
             onPress={() => router.push("/(resident)/amenities")}
           />
           <QuickAction
             label="Helpdesk"
+            icon="chatbubbles-outline"
             onPress={() => router.push("/(resident)/helpdesk")}
           />
           <QuickAction
             label="Pay dues"
+            icon="card-outline"
             onPress={() => router.push("/(resident)/dues")}
           />
           <QuickAction
             label="Polls"
-            primary
+            icon="stats-chart-outline"
             onPress={() => router.push("/(resident)/polls")}
           />
         </View>
@@ -148,28 +152,22 @@ export default function ResidentHome() {
 
 function QuickAction({
   label,
-  primary = false,
+  icon,
   onPress,
 }: {
   label: string;
-  primary?: boolean;
+  icon: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
 }) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.pill,
-        primary ? styles.pillPrimary : styles.pillOutline,
-        pressed && styles.pillPressed,
-      ]}
+      style={({ pressed }) => [styles.tile, pressed && styles.pillPressed]}
     >
-      <Text
-        style={[
-          styles.pillLabel,
-          { color: primary ? colors.textInverse : colors.ink },
-        ]}
-      >
+      <View style={styles.tileIcon}>
+        <Ionicons name={icon} size={22} color={colors.primary} />
+      </View>
+      <Text style={styles.tileLabel} numberOfLines={1}>
         {label}
       </Text>
     </Pressable>
@@ -195,20 +193,26 @@ const styles = StyleSheet.create({
   },
   list: { gap: spacing.sm },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  pill: {
-    flexBasis: "48%",
-    flexGrow: 1,
-    height: 54,
+  tile: {
+    width: "31%",
+    aspectRatio: 1,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primarySoft,
+    borderWidth: 1.5,
+    borderColor: colors.primarySoft,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    padding: spacing.sm,
+  },
+  tileIcon: {
+    width: 44,
+    height: 44,
     borderRadius: radius.pill,
+    backgroundColor: colors.primarySoft,
     alignItems: "center",
     justifyContent: "center",
   },
-  pillOutline: {
-    backgroundColor: colors.surface,
-    borderWidth: 1.5,
-    borderColor: colors.ink,
-  },
-  pillPrimary: { backgroundColor: colors.primary },
+  tileLabel: { fontFamily: fonts.heading, fontSize: 13, color: colors.ink },
   pillPressed: { opacity: 0.8 },
-  pillLabel: { fontFamily: fonts.heading, fontSize: 14 },
 });
