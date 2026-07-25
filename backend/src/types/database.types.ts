@@ -9,6 +9,7 @@
 
 export type UserRole = 'resident' | 'guard' | 'admin';
 export type UserStatus = 'pending' | 'active' | 'disabled';
+export type UserType = 'resident' | 'non_resident';
 export type VisitorType = 'guest' | 'delivery' | 'cab' | 'service';
 export type VisitorStatus =
   | 'pending'
@@ -54,6 +55,7 @@ export type Profile = {
   phone: string | null;
   name: string;
   role: UserRole;
+  user_type: UserType;
   status: UserStatus;
   expo_push_token: string | null;
   created_at: string;
@@ -215,7 +217,7 @@ export type Database = {
       societies: TableShape<Society, 'id' | 'created_at' | 'address'>;
       towers: TableShape<Tower, 'id' | 'created_at'>;
       flats: TableShape<Flat, 'id' | 'created_at' | 'floor'>;
-      profiles: TableShape<Profile, 'society_id' | 'phone' | 'status' | 'expo_push_token' | 'created_at' | 'updated_at'>;
+      profiles: TableShape<Profile, 'society_id' | 'phone' | 'user_type' | 'status' | 'expo_push_token' | 'created_at' | 'updated_at'>;
       flat_residents: TableShape<FlatResident, 'is_owner' | 'is_primary' | 'created_at'>;
       visitors: TableShape<
         Visitor,

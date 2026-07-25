@@ -23,8 +23,8 @@ export default function Pending() {
           Awaiting approval
         </Text>
         <Text variant="body" color={colors.textMuted} center>
-          Hi {profile?.name?.split(' ')[0] ?? 'there'}, your account is created. Your society
-          admin needs to activate it and link you to your flat before you can continue.
+          Hi {profile?.name?.split(' ')[0] ?? 'there'}, your account is created. An admin will
+          review and activate it before you can continue.
         </Text>
 
         <View style={styles.actions}>

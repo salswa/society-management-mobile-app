@@ -1,5 +1,5 @@
 import type { Tone } from '@/components';
-import type { VisitorStatus, VisitorType } from '@/api/types';
+import type { ComplaintStatus, VisitorStatus, VisitorType } from '@/api/types';
 
 export function formatDateTime(iso: string | null | undefined): string {
   if (!iso) return '—';
@@ -62,6 +62,29 @@ const VISITOR_TYPE: Record<VisitorType, { label: string; icon: string }> = {
 
 export function visitorTypeMeta(type: VisitorType) {
   return VISITOR_TYPE[type];
+}
+
+/** "2026-07" → "Jul 2026". */
+export function formatPeriod(period: string): string {
+  const [y, m] = period.split('-').map(Number);
+  if (!y || !m) return period;
+  return new Date(y, m - 1, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' });
+}
+
+/** Rupee amount, e.g. 2500 → "₹2,500". */
+export function formatMoney(amount: number | string): string {
+  return `₹${Number(amount).toLocaleString('en-IN')}`;
+}
+
+const COMPLAINT_STATUS: Record<ComplaintStatus, { label: string; tone: Tone }> = {
+  open: { label: 'Open', tone: 'warning' },
+  in_progress: { label: 'In progress', tone: 'info' },
+  resolved: { label: 'Resolved', tone: 'success' },
+  closed: { label: 'Closed', tone: 'neutral' },
+};
+
+export function complaintStatusMeta(status: ComplaintStatus) {
+  return COMPLAINT_STATUS[status];
 }
 
 export function flatLabel(flat?: { number: string; tower?: { name: string } | null } | null): string {

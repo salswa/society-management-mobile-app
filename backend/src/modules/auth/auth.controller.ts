@@ -10,8 +10,10 @@ const registerBody = z.object({
   email: emailSchema,
   password: passwordSchema,
   name: z.string().trim().min(1).max(80),
-  phone: phoneSchema.optional(),
-  society_id: uuidSchema.optional(),
+  phone: phoneSchema,
+  society_id: uuidSchema,
+  user_type: z.enum(['resident', 'non_resident']),
+  flat_id: uuidSchema.optional(),
 });
 
 const loginBody = z.object({

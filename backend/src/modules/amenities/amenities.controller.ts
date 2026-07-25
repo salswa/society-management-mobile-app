@@ -91,6 +91,37 @@ amenitiesRouter.get(
   })
 );
 
+// Admin: upcoming bookings for an amenity, with the booker and their flat.
+amenitiesRouter.get(
+  '/:id/bookings',
+  requireRole('admin'),
+  validate({ params: idParam }),
+  asyncHandler(async (req, res) => {
+    const id = params<typeof idParam>(req).id;
+    // Scope: the amenity must belong to the admin's society.
+    unwrap(
+      await supabaseAdmin
+        .from('amenities')
+        .select('id')
+        .eq('id', id)
+        .eq('society_id', societyIdOf(req))
+        .single()
+    );
+    const bookings = unwrap(
+      await supabaseAdmin
+        .from('amenity_bookings')
+        .select(
+          'id, start_time, end_time, status, profile:profiles(id, name), flat:flats(id, number, tower:towers(name))'
+        )
+        .eq('amenity_id', id)
+        .eq('status', 'booked')
+        .gte('end_time', new Date().toISOString())
+        .order('start_time')
+    );
+    res.json({ bookings });
+  })
+);
+
 amenitiesRouter.post(
   '/',
   requireRole('admin'),

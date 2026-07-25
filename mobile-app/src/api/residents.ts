@@ -1,6 +1,8 @@
 import { apiRequest } from './client';
 import type { Member, ResidentSearchResult, Role, UserStatus } from './types';
 
+export type ApproveInput = { flat_id?: string; role?: Role };
+
 export type ResidentListFilters = {
   role?: Role;
   status?: UserStatus;
@@ -15,11 +17,18 @@ export const residentsApi = {
   list: (filters: ResidentListFilters = {}) =>
     apiRequest<{ residents: Member[] }>('/residents', { query: filters }),
 
-  /** Admin: approve a pending sign-up, optionally linking a flat. */
-  approve: (id: string, flat_id?: string) =>
+  /** Admin: approve a pending sign-up — set the role and optionally link a flat. */
+  approve: (id: string, input: ApproveInput = {}) =>
     apiRequest<{ resident: Member }>(`/residents/${id}/approve`, {
       method: 'POST',
-      body: flat_id ? { flat_id } : {},
+      body: input,
+    }),
+
+  /** Admin: change a member's role (e.g. promote to admin). */
+  setRole: (id: string, role: Role) =>
+    apiRequest<{ resident: Member }>(`/residents/${id}/role`, {
+      method: 'PATCH',
+      body: { role },
     }),
 
   /** Admin: enable/disable an account. */

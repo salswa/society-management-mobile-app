@@ -9,14 +9,11 @@ export const passwordSchema = z
   .min(6, 'Password must be at least 6 characters')
   .max(72, 'Password is too long');
 
-/**
- * Optional E.164-style phone, e.g. +919000000000.
- * Stored on the profile for now; used when phone + OTP sign-in is added later.
- */
+/** 10-digit phone number (India). Stored on the profile; used later for phone + OTP. */
 export const phoneSchema = z
   .string()
   .trim()
-  .regex(/^\+?[1-9]\d{7,14}$/, 'Enter a valid phone number in international format');
+  .regex(/^\d{10}$/, 'Enter a valid 10-digit phone number');
 
 export const uuidSchema = z.string().uuid('Invalid id');
 

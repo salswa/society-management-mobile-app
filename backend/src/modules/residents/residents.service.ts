@@ -77,25 +77,45 @@ export async function createMember(input: CreateMemberInput): Promise<Profile> {
   }
 }
 
-/** Links a resident to a flat (idempotent upsert on the composite key). */
+/** The profile currently linked to a flat, or null if it's vacant. */
+export async function flatOccupantId(flatId: string): Promise<string | null> {
+  const row = await supabaseAdmin
+    .from('flat_residents')
+    .select('profile_id')
+    .eq('flat_id', flatId)
+    .maybeSingle();
+  return row.data?.profile_id ?? null;
+}
+
+/**
+ * Sets a resident's single flat. Enforces one account per flat: rejects a flat
+ * already held by someone else, and frees the resident's previous flat (move).
+ */
 export async function assignFlat(input: {
   profile_id: string;
   flat_id: string;
   is_owner?: boolean;
   is_primary?: boolean;
 }): Promise<void> {
+  const occupant = await flatOccupantId(input.flat_id);
+  if (occupant && occupant !== input.profile_id) {
+    throw conflict('This flat already has a resident');
+  }
+
+  // One flat per resident: free their previous flat before linking the new one.
+  unwrap(
+    await supabaseAdmin.from('flat_residents').delete().eq('profile_id', input.profile_id).select()
+  );
+
   unwrap(
     await supabaseAdmin
       .from('flat_residents')
-      .upsert(
-        {
-          flat_id: input.flat_id,
-          profile_id: input.profile_id,
-          is_owner: input.is_owner ?? false,
-          is_primary: input.is_primary ?? false,
-        },
-        { onConflict: 'flat_id,profile_id' }
-      )
+      .insert({
+        flat_id: input.flat_id,
+        profile_id: input.profile_id,
+        is_owner: input.is_owner ?? false,
+        is_primary: input.is_primary ?? true,
+      })
       .select('flat_id')
       .single()
   );
@@ -109,11 +129,25 @@ export async function approveResident(input: {
   society_id: string;
   profile_id: string;
   flat_id?: string;
+  role?: UserRole;
 }): Promise<Profile> {
+  // Reject an occupied flat before activating, so we never leave an activated,
+  // flat-less account behind.
+  if (input.flat_id) {
+    const occupant = await flatOccupantId(input.flat_id);
+    if (occupant && occupant !== input.profile_id) {
+      throw conflict('This flat already has a resident');
+    }
+  }
+
   const profile = unwrap(
     await supabaseAdmin
       .from('profiles')
-      .update({ status: 'active', society_id: input.society_id })
+      .update({
+        status: 'active',
+        society_id: input.society_id,
+        ...(input.role ? { role: input.role } : {}),
+      })
       .eq('id', input.profile_id)
       .select('*')
       .single()
@@ -122,6 +156,23 @@ export async function approveResident(input: {
     await assignFlat({ profile_id: input.profile_id, flat_id: input.flat_id });
   }
   return profile;
+}
+
+/** Changes a member's role within the admin's society (e.g. promote to admin). */
+export async function setRole(input: {
+  society_id: string;
+  profile_id: string;
+  role: UserRole;
+}): Promise<Profile> {
+  return unwrap(
+    await supabaseAdmin
+      .from('profiles')
+      .update({ role: input.role })
+      .eq('id', input.profile_id)
+      .eq('society_id', input.society_id)
+      .select('*')
+      .single()
+  );
 }
 
 /** Enables/disables an account within the admin's society. */

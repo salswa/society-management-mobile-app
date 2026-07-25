@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { authApi } from '@/api/auth';
+import { authApi, type RegisterInput } from '@/api/auth';
 import { setAuthHandlers } from '@/api/client';
 import { queryClient } from '@/query/queryClient';
 import type { Profile, Session } from '@/api/types';
@@ -26,12 +26,7 @@ type AuthContextValue = {
   viewMode: ViewMode | null;
   setViewMode: (mode: ViewMode) => void;
   login: (email: string, password: string) => Promise<void>;
-  register: (input: {
-    email: string;
-    password: string;
-    name: string;
-    phone?: string;
-  }) => Promise<void>;
+  register: (input: RegisterInput) => Promise<void>;
   logout: () => Promise<void>;
   refetchProfile: () => Promise<void>;
 };
@@ -111,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const register = useCallback(
-    async (input: { email: string; password: string; name: string; phone?: string }) => {
+    async (input: RegisterInput) => {
       const { profile: p, session } = await authApi.register(input);
       await setSession(session);
       setProfile(p);

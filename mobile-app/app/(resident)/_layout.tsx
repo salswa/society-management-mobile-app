@@ -48,6 +48,12 @@ export default function ResidentLayout() {
           ),
         }}
       />
+      {/* Reached from the home quick-actions — hidden from the tab bar. */}
+      <Tabs.Screen name="pre-approve" options={{ href: null }} />
+      <Tabs.Screen name="helpdesk" options={{ href: null }} />
+      <Tabs.Screen name="dues" options={{ href: null }} />
+      <Tabs.Screen name="polls" options={{ href: null }} />
+      <Tabs.Screen name="amenities" options={{ href: null }} />
     </Tabs>
   );
 }

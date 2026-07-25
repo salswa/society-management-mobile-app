@@ -26,8 +26,12 @@ const listQuery = z.object({
   status: z.enum(['pending', 'active', 'disabled']).optional(),
 });
 
-const approveBody = z.object({ flat_id: uuidSchema.optional() });
+const approveBody = z.object({
+  flat_id: uuidSchema.optional(),
+  role: z.enum(['resident', 'guard', 'admin']).optional(),
+});
 const statusBody = z.object({ status: z.enum(['active', 'disabled']) });
+const roleBody = z.object({ role: z.enum(['resident', 'guard', 'admin']) });
 const assignFlatBody = z.object({
   flat_id: uuidSchema,
   is_owner: z.boolean().optional(),
@@ -113,10 +117,27 @@ residentsRouter.post(
   requireRole('admin'),
   validate({ params: idParam, body: approveBody }),
   asyncHandler(async (req, res) => {
+    const input = body<typeof approveBody>(req);
     const profile = await service.approveResident({
       society_id: societyIdOf(req),
       profile_id: params<typeof idParam>(req).id,
-      flat_id: body<typeof approveBody>(req).flat_id,
+      flat_id: input.flat_id,
+      role: input.role,
+    });
+    res.json({ resident: profile });
+  })
+);
+
+// Change a member's role (e.g. promote a resident to admin — many admins allowed).
+residentsRouter.patch(
+  '/:id/role',
+  requireRole('admin'),
+  validate({ params: idParam, body: roleBody }),
+  asyncHandler(async (req, res) => {
+    const profile = await service.setRole({
+      society_id: societyIdOf(req),
+      profile_id: params<typeof idParam>(req).id,
+      role: body<typeof roleBody>(req).role,
     });
     res.json({ resident: profile });
   })

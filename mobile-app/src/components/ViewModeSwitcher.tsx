@@ -21,12 +21,25 @@ export function ViewModeSwitcher({ variant = 'pill' }: Props) {
   const me = useMyProfile();
 
   const hasFlat = (me.data?.flats?.length ?? 0) > 0;
-  if (!profile || profile.role !== 'admin' || !hasFlat) return null;
+  if (!profile || profile.role !== 'admin') return null;
+
+  // Admin without a flat can't switch — show a static Admin badge in the header
+  // (residents/guards get their own pill elsewhere).
+  if (!hasFlat) {
+    if (variant === 'row') return null;
+    return (
+      <View style={styles.pill}>
+        <Ionicons name="shield-checkmark-outline" size={13} color={colors.ink} />
+        <Text variant="label">Admin</Text>
+      </View>
+    );
+  }
 
   const current: 'admin' | 'resident' = viewMode === 'resident' ? 'resident' : 'admin';
   const target = current === 'resident' ? 'admin' : 'resident';
-  const currentLabel = current === 'admin' ? 'Admin' : 'Resident';
   const targetLabel = target === 'admin' ? 'Admin' : 'Resident';
+  // Icon reflects where the tap takes you: home for the resident experience.
+  const targetIcon = target === 'resident' ? 'home-outline' : 'shield-checkmark-outline';
 
   const switchTo = () => {
     setViewMode(target);
@@ -37,12 +50,12 @@ export function ViewModeSwitcher({ variant = 'pill' }: Props) {
     return (
       <Card onPress={switchTo} style={styles.row}>
         <View style={styles.rowIcon}>
-          <Ionicons name="swap-horizontal" size={18} color={colors.primary} />
+          <Ionicons name={targetIcon} size={18} color={colors.primary} />
         </View>
         <View style={styles.rowBody}>
           <Text variant="bodyStrong">Switch to {targetLabel} view</Text>
           <Text variant="small" color={colors.textMuted}>
-            Currently viewing as {currentLabel}
+            {target === 'resident' ? 'Go to your resident home' : 'Go to the admin dashboard'}
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
@@ -57,8 +70,9 @@ export function ViewModeSwitcher({ variant = 'pill' }: Props) {
       accessibilityLabel={`Switch to ${targetLabel} view`}
       style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
     >
-      <Ionicons name="swap-horizontal" size={13} color={colors.ink} />
-      <Text variant="label">{currentLabel}</Text>
+      <Ionicons name="swap-horizontal" size={14} color={colors.ink} />
+      <Ionicons name={targetIcon} size={13} color={colors.ink} />
+      <Text variant="label">{targetLabel}</Text>
     </Pressable>
   );
 }

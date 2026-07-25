@@ -44,7 +44,7 @@ export function ProfileScreen() {
 
         <ViewModeSwitcher variant="row" />
 
-        {profile.role === 'resident' ? (
+        {profile.role === 'resident' || flats.length > 0 ? (
           <Card style={styles.section}>
             <Text variant="label" color={colors.textMuted}>
               My flats

@@ -1,10 +1,4 @@
-import {
-  Alert,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Pressable, RefreshControl, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
@@ -42,7 +36,6 @@ export default function ResidentHome() {
     qc.invalidateQueries({ queryKey: ["notices"] });
     qc.invalidateQueries({ queryKey: ["profile"] });
   };
-  const soon = (label: string) => Alert.alert(label, "Coming soon.");
 
   return (
     <Screen
@@ -102,18 +95,25 @@ export default function ResidentHome() {
         <SectionTitle>Quick services</SectionTitle>
         <View style={styles.grid}>
           <QuickAction
-            label="Pre-invite"
-            onPress={() => router.push("/(resident)/visitors/new")}
+            label="Pre-Approve"
+            onPress={() => router.push("/(resident)/pre-approve")}
           />
           <QuickAction
             label="Amenity"
-            onPress={() => soon("Amenity booking")}
+            onPress={() => router.push("/(resident)/amenities")}
           />
-          <QuickAction label="Helpdesk" onPress={() => soon("Helpdesk")} />
+          <QuickAction
+            label="Helpdesk"
+            onPress={() => router.push("/(resident)/helpdesk")}
+          />
           <QuickAction
             label="Pay dues"
+            onPress={() => router.push("/(resident)/dues")}
+          />
+          <QuickAction
+            label="Polls"
             primary
-            onPress={() => soon("Maintenance dues")}
+            onPress={() => router.push("/(resident)/polls")}
           />
         </View>
 

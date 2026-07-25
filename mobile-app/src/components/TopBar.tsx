@@ -5,13 +5,15 @@ import { colors, fonts, spacing } from '@/theme/tokens';
 import { Text } from './Text';
 
 /** In-content nav bar (back chevron + Syne title) that sits on the dotted canvas. */
-export function TopBar({ title }: { title: string }) {
+export function TopBar({ title, hideBack }: { title: string; hideBack?: boolean }) {
   const router = useRouter();
   return (
     <View style={styles.bar}>
-      <Pressable onPress={() => router.back()} hitSlop={10} style={styles.back}>
-        <Ionicons name="chevron-back" size={24} color={colors.ink} />
-      </Pressable>
+      {hideBack ? null : (
+        <Pressable onPress={() => router.back()} hitSlop={10} style={styles.back}>
+          <Ionicons name="chevron-back" size={24} color={colors.ink} />
+        </Pressable>
+      )}
       <Text style={styles.title} numberOfLines={1}>
         {title}
       </Text>

@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFlats } from '@/query/hooks';
 import type { Flat } from '@/api/types';
 import { colors, radius, spacing } from '@/theme/tokens';
+import { Badge } from './Badge';
 import { Loading, ErrorState } from './StateViews';
 import { Text } from './Text';
 
@@ -11,12 +12,24 @@ type Props = {
   visible: boolean;
   title?: string;
   selectedId?: string | null;
+  /** Profile being assigned; a flat this profile already occupies stays selectable. */
+  assigneeId?: string;
+  /** Grey out flats that already have a resident (default true). Set false to allow any flat. */
+  disableOccupied?: boolean;
   onClose: () => void;
   onSelect: (flat: Flat) => void;
 };
 
 /** Bottom sheet listing the society's flats (grouped by tower) for assignment. */
-export function FlatPickerSheet({ visible, title = 'Choose a flat', selectedId, onClose, onSelect }: Props) {
+export function FlatPickerSheet({
+  visible,
+  title = 'Choose a flat',
+  selectedId,
+  assigneeId,
+  disableOccupied = true,
+  onClose,
+  onSelect,
+}: Props) {
   const { data, isLoading, isError, refetch } = useFlats();
 
   const groups = useMemo(() => {
@@ -59,18 +72,34 @@ export function FlatPickerSheet({ visible, title = 'Choose a flat', selectedId, 
                 </Text>
                 {flats.map((flat) => {
                   const active = flat.id === selectedId;
+                  const occupant = flat.flat_residents?.[0]?.profile ?? null;
+                  const takenByOther =
+                    disableOccupied && !!occupant && occupant.id !== assigneeId;
                   return (
                     <Pressable
                       key={flat.id}
                       onPress={() => onSelect(flat)}
+                      disabled={takenByOther}
                       style={({ pressed }) => [
                         styles.row,
                         active && styles.rowActive,
-                        pressed && styles.pressed,
+                        takenByOther && styles.rowDisabled,
+                        pressed && !takenByOther && styles.pressed,
                       ]}
                     >
-                      <Text variant="bodyStrong">{flat.number}</Text>
-                      {active ? (
+                      <View style={styles.rowInfo}>
+                        <Text variant="bodyStrong" color={takenByOther ? colors.textMuted : colors.ink}>
+                          {flat.number}
+                        </Text>
+                        {takenByOther ? (
+                          <Text variant="small" color={colors.textMuted}>
+                            {occupant?.name}
+                          </Text>
+                        ) : null}
+                      </View>
+                      {takenByOther ? (
+                        <Badge label="Occupied" tone="neutral" />
+                      ) : active ? (
                         <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
                       ) : null}
                     </Pressable>
@@ -129,6 +158,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: spacing.sm,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
     borderRadius: radius.md,
@@ -136,6 +166,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
+  rowInfo: { flexShrink: 1, gap: 2 },
   rowActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  rowDisabled: { backgroundColor: colors.surfaceAlt, opacity: 0.7 },
   pressed: { opacity: 0.85 },
 });

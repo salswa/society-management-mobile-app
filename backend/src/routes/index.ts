@@ -12,11 +12,13 @@ import { noticesRouter } from '../modules/notices/notices.controller';
 import { pollsRouter } from '../modules/polls/polls.controller';
 import { staffRouter } from '../modules/staff/staff.controller';
 import { maintenanceRouter } from '../modules/maintenance/maintenance.controller';
+import { publicRouter } from '../modules/public/public.controller';
 
 export const apiRouter = Router();
 
 apiRouter.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
+apiRouter.use('/public', publicRouter);
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/profile', profileRouter);
 apiRouter.use('/society', societyRouter);

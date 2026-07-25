@@ -15,18 +15,18 @@ type Item = {
 };
 
 const MANAGE: Item[] = [
-  { label: 'Residents & flats', icon: 'people-outline', href: '/(admin)/residents' },
-  { label: 'Towers', icon: 'business-outline', soon: true },
-  { label: 'Flats', icon: 'grid-outline', soon: true },
-  { label: 'Staff & service providers', icon: 'construct-outline', soon: true },
+  { label: 'Members', icon: 'people-outline', href: '/(admin)/residents' },
+  { label: 'Towers', icon: 'business-outline', href: '/(admin)/towers' },
+  { label: 'Flats', icon: 'grid-outline', href: '/(admin)/flats' },
+  { label: 'Staff & service providers', icon: 'construct-outline', href: '/(admin)/staff' },
 ];
 
 const COMMUNITY: Item[] = [
   { label: 'Notices', icon: 'megaphone-outline', href: '/(admin)/notices' },
-  { label: 'Amenities', icon: 'tennisball-outline', soon: true },
-  { label: 'Polls', icon: 'bar-chart-outline', soon: true },
-  { label: 'Helpdesk', icon: 'chatbubbles-outline', soon: true },
-  { label: 'Maintenance', icon: 'card-outline', soon: true },
+  { label: 'Helpdesk', icon: 'chatbubbles-outline', href: '/(admin)/helpdesk' },
+  { label: 'Maintenance', icon: 'card-outline', href: '/(admin)/maintenance' },
+  { label: 'Polls', icon: 'bar-chart-outline', href: '/(admin)/polls' },
+  { label: 'Amenities', icon: 'tennisball-outline', href: '/(admin)/amenities' },
 ];
 
 const TITLES: Record<AdminPanelKind, string> = {

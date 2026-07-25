@@ -18,3 +18,4 @@ export { NoticeHero } from './NoticeHero';
 export { TopBar } from './TopBar';
 export { ViewModeSwitcher } from './ViewModeSwitcher';
 export { FlatPickerSheet } from './FlatPickerSheet';
+export { SheetModal } from './SheetModal';

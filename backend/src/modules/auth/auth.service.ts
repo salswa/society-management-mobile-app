@@ -1,14 +1,17 @@
 import { supabaseAdmin, supabasePublic } from '../../lib/supabase';
-import { AppError, conflict, unauthorized } from '../../lib/errors';
+import { AppError, badRequest, conflict, notFound, unauthorized } from '../../lib/errors';
 import { unwrap } from '../../lib/db';
+import { flatOccupantId } from '../residents/residents.service';
 import type { Profile, UserRole } from '../../types/database.types';
 
 type RegisterInput = {
   email: string;
   password: string;
   name: string;
-  phone?: string;
-  society_id?: string;
+  phone: string;
+  society_id: string;
+  user_type: 'resident' | 'non_resident';
+  flat_id?: string;
 };
 
 type Session = {
@@ -24,11 +27,28 @@ type Session = {
  * them in. Phone is stored for later (phone + OTP sign-in).
  */
 export async function register(input: RegisterInput): Promise<{ profile: Profile; session: Session }> {
-  const { email, password, name, phone, society_id } = input;
+  const { email, password, name, phone, society_id, user_type, flat_id } = input;
 
   // Reject duplicate email up-front for a clean message.
   const existing = await supabaseAdmin.from('profiles').select('id').eq('email', email).maybeSingle();
   if (existing.data) throw conflict('An account with this email already exists');
+
+  // Validate the society and, if a flat was chosen, that it's in the society and free.
+  const society = await supabaseAdmin.from('societies').select('id').eq('id', society_id).maybeSingle();
+  if (!society.data) throw notFound('Society not found');
+
+  // Residents must pick a flat at registration.
+  if (user_type === 'resident' && !flat_id) throw badRequest('Select your flat');
+
+  if (flat_id) {
+    const flat = await supabaseAdmin
+      .from('flats')
+      .select('id, society_id')
+      .eq('id', flat_id)
+      .maybeSingle();
+    if (!flat.data || flat.data.society_id !== society_id) throw notFound('Flat not found');
+    if (await flatOccupantId(flat_id)) throw conflict('That flat is already taken');
+  }
 
   const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
     email,
@@ -46,28 +66,42 @@ export async function register(input: RegisterInput): Promise<{ profile: Profile
 
   const userId = created.user.id;
 
-  const profileResult = await supabaseAdmin
-    .from('profiles')
-    .insert({
-      id: userId,
-      email,
-      phone: phone ?? null,
-      name,
-      role: 'resident' as UserRole,
-      status: 'pending',
-      society_id: society_id ?? null,
-    })
-    .select('*')
-    .single();
+  try {
+    const profile = unwrap(
+      await supabaseAdmin
+        .from('profiles')
+        .insert({
+          id: userId,
+          email,
+          phone: phone ?? null,
+          name,
+          role: 'resident' as UserRole, // placeholder; the real role is set at approval
+          user_type,
+          status: 'pending',
+          society_id,
+        })
+        .select('*')
+        .single()
+    );
 
-  if (profileResult.error) {
-    // Roll back the auth user so a failed profile insert doesn't orphan an account.
+    // Residents may reserve a flat at sign-up (optional; the unique index guards races).
+    if (flat_id) {
+      unwrap(
+        await supabaseAdmin
+          .from('flat_residents')
+          .insert({ flat_id, profile_id: userId, is_owner: true, is_primary: true })
+          .select('flat_id')
+          .single()
+      );
+    }
+
+    const session = await login({ email, password });
+    return { profile, session: session.session };
+  } catch (err) {
+    // Roll back the auth user so a failed insert doesn't orphan an account.
     await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => undefined);
-    throw new AppError(500, 'db_error', profileResult.error.message);
+    throw err;
   }
-
-  const session = await login({ email, password });
-  return { profile: profileResult.data, session: session.session };
 }
 
 /** Signs in with email + password and returns the Supabase session tokens. */

@@ -71,6 +71,13 @@ export default function AdminTabs() {
 
       {/* Reached from the drawer / row taps — hidden from the tab bar. */}
       <Tabs.Screen name="residents" options={{ href: null }} />
+      <Tabs.Screen name="towers" options={{ href: null }} />
+      <Tabs.Screen name="flats" options={{ href: null }} />
+      <Tabs.Screen name="staff" options={{ href: null }} />
+      <Tabs.Screen name="helpdesk" options={{ href: null }} />
+      <Tabs.Screen name="maintenance" options={{ href: null }} />
+      <Tabs.Screen name="polls" options={{ href: null }} />
+      <Tabs.Screen name="amenities" options={{ href: null }} />
       <Tabs.Screen name="notices" options={{ href: null }} />
       <Tabs.Screen name="visitor/[id]" options={{ href: null }} />
     </Tabs>

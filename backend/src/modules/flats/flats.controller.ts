@@ -30,7 +30,7 @@ flatsRouter.get(
     const { tower_id } = query<typeof listQuery>(req);
     let q = supabaseAdmin
       .from('flats')
-      .select('*, tower:towers(name)')
+      .select('*, tower:towers(name), flat_residents(profile:profiles(id, name))')
       .eq('society_id', societyIdOf(req))
       .order('number');
     if (tower_id) q = q.eq('tower_id', tower_id);
