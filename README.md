@@ -5,10 +5,6 @@ and paperwork that used to happen at the society gate into one community app —
 visitor approvals, notices, complaints, maintenance dues, polls, amenity bookings and
 member management, across three roles: **Resident**, **Guard**, and **Admin**.
 
-> UrbanSo is the product name. The backend package/seed still use the original
-> internal name (`portl`) in a few places (npm name, the `admin@portl.app` seed login) —
-> harmless and intentionally left as-is.
-
 ## Monorepo layout
 
 | Folder                       | What it is                          | Stack                                     | Status                 |
