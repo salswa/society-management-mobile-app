@@ -190,9 +190,3 @@ More detail in [`mobile-app/README.md`](mobile-app/README.md).
 | `riya@example.com`    | `riya123`    | Resident                            |
 | `amit@example.com`    | `amit123`    | Resident                            |
 | `pending@example.com` | `pending123` | Pending sign-up (awaiting approval) |
-
-## Roadmap / deferred
-
-Phone + OTP sign-in · push notifications (`expo_push_token` + endpoint already in place) ·
-payment gateway for dues (currently manual "mark paid") · tenant flow (owner-approved) ·
-multi-society login.
