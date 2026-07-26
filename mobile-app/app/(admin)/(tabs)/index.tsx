@@ -2,7 +2,12 @@ import { Pressable, RefreshControl, StyleSheet, View } from "react-native";
 import { useRouter, type Href } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/auth/AuthContext";
-import { useComplaints, useInvoices, useNotices, useResidents } from "@/query/hooks";
+import {
+  useComplaints,
+  useInvoices,
+  useNotices,
+  useResidents,
+} from "@/query/hooks";
 import { Card, Screen, Text, ViewModeSwitcher } from "@/components";
 import { colors, fonts, radius, spacing } from "@/theme/tokens";
 
@@ -11,10 +16,14 @@ const QUICK_SERVICES: {
   icon: keyof typeof Ionicons.glyphMap;
   href: Href;
 }[] = [
-  { label: "Post notice", icon: "megaphone-outline", href: "/(admin)/notices/new" },
+  {
+    label: "Post notice",
+    icon: "megaphone-outline",
+    href: "/(admin)/notices/new",
+  },
   { label: "Members", icon: "people-outline", href: "/(admin)/residents" },
   { label: "Helpdesk", icon: "chatbubbles-outline", href: "/(admin)/helpdesk" },
-  { label: "Maintenance", icon: "card-outline", href: "/(admin)/maintenance" },
+  { label: "Dues", icon: "card-outline", href: "/(admin)/maintenance" },
   { label: "Polls", icon: "bar-chart-outline", href: "/(admin)/polls" },
   {
     label: "Amenities",
@@ -33,7 +42,9 @@ export default function AdminHome() {
 
   const approvalsCount = approvals.data?.length ?? 0;
   const openComplaints =
-    complaints.data?.filter((c) => c.status !== "resolved" && c.status !== "closed").length ?? 0;
+    complaints.data?.filter(
+      (c) => c.status !== "resolved" && c.status !== "closed",
+    ).length ?? 0;
   const pendingDues = invoices.data?.length ?? 0;
 
   const refreshing =

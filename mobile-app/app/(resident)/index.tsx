@@ -110,7 +110,7 @@ export default function ResidentHome() {
             onPress={() => router.push("/(resident)/helpdesk")}
           />
           <QuickAction
-            label="Pay dues"
+            label="Dues"
             icon="card-outline"
             onPress={() => router.push("/(resident)/dues")}
           />

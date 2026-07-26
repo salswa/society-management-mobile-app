@@ -1,39 +1,47 @@
-import { Redirect, Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '@/auth/AuthContext';
-import { Loading } from '@/components';
-import { floatingTabScreenOptions } from '@/theme/navOptions';
+import { Redirect, Tabs } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@/auth/AuthContext";
+import { Loading } from "@/components";
+import { useFloatingTabScreenOptions } from "@/theme/navOptions";
 
 export default function ResidentLayout() {
   const { status, profile, viewMode } = useAuth();
 
-  if (status === 'loading') return <Loading />;
-  if (status === 'unauthenticated' || !profile) return <Redirect href="/(auth)/login" />;
+  const tabOptions = useFloatingTabScreenOptions();
+
+  if (status === "loading") return <Loading />;
+  if (status === "unauthenticated" || !profile)
+    return <Redirect href="/(auth)/login" />;
   // Residents always; admins only while viewing the resident experience.
   const allowed =
-    profile.role === 'resident' || (profile.role === 'admin' && viewMode === 'resident');
+    profile.role === "resident" ||
+    (profile.role === "admin" && viewMode === "resident");
   if (!allowed) return <Redirect href="/" />;
 
   return (
-    <Tabs screenOptions={floatingTabScreenOptions}>
+    <Tabs screenOptions={tabOptions}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={size} />,
+          title: "Home",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" color={color} size={size} />
+          ),
         }}
       />
       <Tabs.Screen
         name="visitors"
         options={{
-          title: 'Visitors',
-          tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" color={color} size={size} />,
+          title: "Visitors",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="people-outline" color={color} size={size} />
+          ),
         }}
       />
       <Tabs.Screen
         name="notices"
         options={{
-          title: 'Notices',
+          title: "Notices",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="megaphone-outline" color={color} size={size} />
           ),
@@ -42,7 +50,7 @@ export default function ResidentLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" color={color} size={size} />
           ),

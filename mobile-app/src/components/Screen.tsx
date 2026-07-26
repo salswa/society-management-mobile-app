@@ -1,8 +1,14 @@
-import type { ReactElement, ReactNode } from 'react';
-import { ScrollView, StyleSheet, View, type RefreshControlProps, type ViewStyle } from 'react-native';
-import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
-import { colors, spacing } from '@/theme/tokens';
-import { DotGrid } from './DotGrid';
+import type { ReactElement, ReactNode } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  type RefreshControlProps,
+  type ViewStyle,
+} from "react-native";
+import { SafeAreaView, type Edge } from "react-native-safe-area-context";
+import { colors, spacing } from "@/theme/tokens";
+import { DotGrid } from "./DotGrid";
 
 type Props = {
   children: ReactNode;
@@ -24,13 +30,17 @@ export function Screen({
   children,
   scroll = false,
   padded = true,
-  edges = ['top', 'bottom'],
+  edges = ["top"],
   style,
   refreshControl,
   header,
   tabbarSpace = false,
 }: Props) {
-  const inner = [padded && styles.padded, tabbarSpace && styles.tabbarSpace, style];
+  const inner = [
+    padded && styles.padded,
+    tabbarSpace && styles.tabbarSpace,
+    style,
+  ];
 
   return (
     <View style={styles.root}>
@@ -57,10 +67,14 @@ export function Screen({
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  safe: { flex: 1, backgroundColor: 'transparent' },
+  safe: { flex: 1, backgroundColor: "transparent" },
   flex: { flex: 1 },
   padded: { padding: spacing.lg },
-  headerWrap: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.sm },
+  headerWrap: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
+  },
   tabbarSpace: { paddingBottom: TABBAR_SPACE },
   scrollContent: { flexGrow: 1 },
 });

@@ -1,4 +1,5 @@
-import { colors, fonts } from './tokens';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors, fonts } from "./tokens";
 
 /** Stack screenOptions styled like the mockup's top nav (Syne title, canvas bg, no shadow). */
 export const stackScreenOptions = {
@@ -6,9 +7,13 @@ export const stackScreenOptions = {
   headerStyle: { backgroundColor: colors.background },
   headerShadowVisible: false,
   headerTintColor: colors.ink,
-  headerTitleStyle: { fontFamily: fonts.heading, fontSize: 18, color: colors.ink },
-  headerTitleAlign: 'left' as const,
-  headerBackButtonDisplayMode: 'minimal' as const,
+  headerTitleStyle: {
+    fontFamily: fonts.heading,
+    fontSize: 18,
+    color: colors.ink,
+  },
+  headerTitleAlign: "left" as const,
+  headerBackButtonDisplayMode: "minimal" as const,
   contentStyle: { backgroundColor: colors.background },
 };
 
@@ -27,3 +32,28 @@ export const floatingTabScreenOptions = {
   },
   tabBarLabelStyle: { fontFamily: fonts.bodySemi, fontSize: 11 },
 };
+
+export function useFloatingTabScreenOptions() {
+  const insets = useSafeAreaInsets();
+
+  return {
+    headerShown: false,
+    tabBarActiveTintColor: colors.primary,
+    tabBarInactiveTintColor: colors.textMuted,
+
+    tabBarStyle: {
+      backgroundColor: colors.surface,
+      borderTopColor: colors.border,
+      borderTopWidth: 1,
+
+      height: 62 + insets.bottom,
+      paddingTop: 6,
+      paddingBottom: Math.max(8, insets.bottom),
+    },
+
+    tabBarLabelStyle: {
+      fontFamily: fonts.bodySemi,
+      fontSize: 11,
+    },
+  };
+}

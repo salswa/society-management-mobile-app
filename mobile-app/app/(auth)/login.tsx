@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -80,12 +81,11 @@ export default function Login() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View style={styles.header}>
-          <View style={styles.logo}>
-            <Text variant="h1" color={colors.textInverse}>
-              P
-            </Text>
-          </View>
-          <Text variant="h1">Welcome to Portl</Text>
+          <Image
+            source={require("../../assets/icon.png")}
+            style={styles.logo}
+          />
+          {/* <Text variant="h1">UrbanSo</Text> */}
           <Text variant="body" color={colors.textMuted}>
             Your society, in one app.
           </Text>
@@ -176,12 +176,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   logo: {
-    width: 64,
-    height: 64,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 120,
+    height: 100,
+    //borderRadius: 18,
     marginBottom: spacing.md,
   },
   form: { gap: spacing.lg },

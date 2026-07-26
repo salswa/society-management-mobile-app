@@ -1,25 +1,47 @@
 {
   "expo": {
-    "name": "Portl",
-    "slug": "portl",
+    "name": "UrbanSo",
+    "slug": "urbanso",
+    "owner": "salswaa",
     "version": "1.0.0",
-    "scheme": "portl",
+    "icon": "./assets/icon.png",
+    "scheme": "urbanso",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.urbanso.app"
     },
     "android": {
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.urbanso.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4361EE"
+      }
     },
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/adaptive-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#4361EE"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c1c01fe8-b6cf-4cce-88de-db3e2391e0ef"
+      }
     }
   }
 }

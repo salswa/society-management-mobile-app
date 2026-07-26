@@ -1,11 +1,11 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { useRouter, type Href } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { Badge, Text } from '@/components';
-import { colors, radius, spacing } from '@/theme/tokens';
+import { Pressable, StyleSheet, View } from "react-native";
+import { useRouter, type Href } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { Badge, Text } from "@/components";
+import { colors, radius, spacing } from "@/theme/tokens";
 
-export type AdminPanelKind = 'manage' | 'community';
+export type AdminPanelKind = "manage" | "community";
 
 type Item = {
   label: string;
@@ -15,29 +15,43 @@ type Item = {
 };
 
 const MANAGE: Item[] = [
-  { label: 'Members', icon: 'people-outline', href: '/(admin)/residents' },
-  { label: 'Towers', icon: 'business-outline', href: '/(admin)/towers' },
-  { label: 'Flats', icon: 'grid-outline', href: '/(admin)/flats' },
-  { label: 'Staff & service providers', icon: 'construct-outline', href: '/(admin)/staff' },
+  { label: "Members", icon: "people-outline", href: "/(admin)/residents" },
+  { label: "Towers", icon: "business-outline", href: "/(admin)/towers" },
+  { label: "Flats", icon: "grid-outline", href: "/(admin)/flats" },
+  {
+    label: "Staff & service providers",
+    icon: "construct-outline",
+    href: "/(admin)/staff",
+  },
 ];
 
 const COMMUNITY: Item[] = [
-  { label: 'Notices', icon: 'megaphone-outline', href: '/(admin)/notices' },
-  { label: 'Helpdesk', icon: 'chatbubbles-outline', href: '/(admin)/helpdesk' },
-  { label: 'Maintenance', icon: 'card-outline', href: '/(admin)/maintenance' },
-  { label: 'Polls', icon: 'bar-chart-outline', href: '/(admin)/polls' },
-  { label: 'Amenities', icon: 'tennisball-outline', href: '/(admin)/amenities' },
+  { label: "Notices", icon: "megaphone-outline", href: "/(admin)/notices" },
+  { label: "Helpdesk", icon: "chatbubbles-outline", href: "/(admin)/helpdesk" },
+  { label: "Dues", icon: "card-outline", href: "/(admin)/maintenance" },
+  { label: "Polls", icon: "bar-chart-outline", href: "/(admin)/polls" },
+  {
+    label: "Amenities",
+    icon: "tennisball-outline",
+    href: "/(admin)/amenities",
+  },
 ];
 
 const TITLES: Record<AdminPanelKind, string> = {
-  manage: 'Manage',
-  community: 'Community',
+  manage: "Manage",
+  community: "Community",
 };
 
 /** Content of the right-side admin drawer (Manage / Community). */
-export function AdminPanel({ kind, onClose }: { kind: AdminPanelKind; onClose: () => void }) {
+export function AdminPanel({
+  kind,
+  onClose,
+}: {
+  kind: AdminPanelKind;
+  onClose: () => void;
+}) {
   const router = useRouter();
-  const items = kind === 'manage' ? MANAGE : COMMUNITY;
+  const items = kind === "manage" ? MANAGE : COMMUNITY;
 
   const open = (item: Item) => {
     if (item.soon || !item.href) return;
@@ -46,7 +60,7 @@ export function AdminPanel({ kind, onClose }: { kind: AdminPanelKind; onClose: (
   };
 
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'right', 'bottom']}>
+    <SafeAreaView style={styles.root} edges={["top", "right", "bottom"]}>
       <View style={styles.header}>
         <Text variant="h2">{TITLES[kind]}</Text>
         <Pressable onPress={onClose} hitSlop={10} style={styles.close}>
@@ -60,7 +74,10 @@ export function AdminPanel({ kind, onClose }: { kind: AdminPanelKind; onClose: (
             key={item.label}
             onPress={() => open(item)}
             disabled={item.soon}
-            style={({ pressed }) => [styles.row, pressed && !item.soon && styles.pressed]}
+            style={({ pressed }) => [
+              styles.row,
+              pressed && !item.soon && styles.pressed,
+            ]}
           >
             <View style={[styles.icon, item.soon && styles.iconMuted]}>
               <Ionicons
@@ -69,13 +86,21 @@ export function AdminPanel({ kind, onClose }: { kind: AdminPanelKind; onClose: (
                 color={item.soon ? colors.textMuted : colors.primary}
               />
             </View>
-            <Text variant="bodyStrong" color={item.soon ? colors.textMuted : colors.ink} style={styles.label}>
+            <Text
+              variant="bodyStrong"
+              color={item.soon ? colors.textMuted : colors.ink}
+              style={styles.label}
+            >
               {item.label}
             </Text>
             {item.soon ? (
               <Badge label="Soon" tone="neutral" />
             ) : (
-              <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={colors.textMuted}
+              />
             )}
           </Pressable>
         ))}
@@ -87,9 +112,9 @@ export function AdminPanel({ kind, onClose }: { kind: AdminPanelKind; onClose: (
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.surface },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.md,
@@ -99,13 +124,13 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: radius.pill,
     backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   list: { paddingHorizontal: spacing.md, gap: spacing.xs },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.sm,
@@ -117,8 +142,8 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: radius.pill,
     backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   iconMuted: { backgroundColor: colors.surfaceAlt },
   label: { flex: 1 },
