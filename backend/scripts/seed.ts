@@ -78,14 +78,25 @@ async function main() {
   // 3. Towers & flats --------------------------------------------------------
   const towerA = await ensureTower(societyId, 'Tower A');
   const towerB = await ensureTower(societyId, 'Tower B');
+  const towerC = await ensureTower(societyId, 'Tower C');
   const flats = {
     a101: await ensureFlat(societyId, towerA, 'A-101', 1),
     a102: await ensureFlat(societyId, towerA, 'A-102', 1),
     a103: await ensureFlat(societyId, towerA, 'A-103', 1),
     a104: await ensureFlat(societyId, towerA, 'A-104', 2),
+    a105: await ensureFlat(societyId, towerA, 'A-105', 2),
+    a106: await ensureFlat(societyId, towerA, 'A-106', 3),
+    a107: await ensureFlat(societyId, towerA, 'A-107', 3),
     b201: await ensureFlat(societyId, towerB, 'B-201', 2),
     b202: await ensureFlat(societyId, towerB, 'B-202', 2),
     b203: await ensureFlat(societyId, towerB, 'B-203', 3),
+    b204: await ensureFlat(societyId, towerB, 'B-204', 3),
+    b205: await ensureFlat(societyId, towerB, 'B-205', 4),
+    c101: await ensureFlat(societyId, towerC, 'C-101', 1),
+    c102: await ensureFlat(societyId, towerC, 'C-102', 1),
+    c103: await ensureFlat(societyId, towerC, 'C-103', 2),
+    c104: await ensureFlat(societyId, towerC, 'C-104', 2),
+    c105: await ensureFlat(societyId, towerC, 'C-105', 3),
   };
 
   // Admin also lives on-site (A-102) → dual Admin/Resident experience.

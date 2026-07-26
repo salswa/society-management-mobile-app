@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '../../lib/supabase';
 import { badRequest, conflict, forbidden, notFound } from '../../lib/errors';
 import { unwrap } from '../../lib/db';
+import { notifyVisitorApproval } from '../../lib/push';
 import type { Profile, Visitor, VisitorStatus, VisitorType } from '../../types/database.types';
 
 const VISITOR_SELECT =
@@ -56,7 +57,7 @@ export async function createVisitor(actor: Profile, input: CreateInput): Promise
 
   const preApproved = actor.role === 'resident' || actor.role === 'admin';
 
-  return unwrap(
+  const visitor: Visitor = unwrap(
     await supabaseAdmin
       .from('visitors')
       .insert({
@@ -78,6 +79,13 @@ export async function createVisitor(actor: Profile, input: CreateInput): Promise
       .select(VISITOR_SELECT)
       .single()
   );
+
+  // Guard-registered arrivals need the resident's approval — notify them.
+  if (visitor.status === 'pending') {
+    await notifyVisitorApproval(visitor.flat_id, visitor.name, visitor.id);
+  }
+
+  return visitor;
 }
 
 type ListFilters = {

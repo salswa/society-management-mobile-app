@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -8,8 +8,28 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { Syne_600SemiBold, Syne_700Bold } from '@expo-google-fonts/syne';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
-import { AuthProvider } from '@/auth/AuthContext';
+import { AuthProvider, useAuth } from '@/auth/AuthContext';
 import { queryClient } from '@/query/queryClient';
+import { addNotificationTapListener, pushHref, registerForPush } from '@/lib/push';
+
+/** Registers the push token once authenticated and routes notification taps. */
+function PushGate() {
+  const { status } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'authenticated') void registerForPush();
+  }, [status]);
+
+  useEffect(() => {
+    return addNotificationTapListener((data) => {
+      const href = pushHref(data);
+      if (href) router.push(href as never);
+    });
+  }, [router]);
+
+  return null;
+}
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -34,6 +54,7 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <StatusBar style="dark" />
+            <PushGate />
             <Stack screenOptions={{ headerShown: false }} />
           </AuthProvider>
         </QueryClientProvider>

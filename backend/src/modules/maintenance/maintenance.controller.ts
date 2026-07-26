@@ -7,7 +7,9 @@ import { validate, body, params, query } from '../../middleware/validate';
 import { supabaseAdmin } from '../../lib/supabase';
 import { unwrap } from '../../lib/db';
 import { profileOf, societyIdOf } from '../../lib/context';
+import { notifyDues } from '../../lib/push';
 import { idParam, uuidSchema } from '../../lib/validators';
+import type { MaintenanceInvoice } from '../../types/database.types';
 
 const createBody = z.object({
   flat_id: uuidSchema,
@@ -59,7 +61,7 @@ maintenanceRouter.post(
   validate({ body: createBody }),
   asyncHandler(async (req, res) => {
     const input = body<typeof createBody>(req);
-    const invoice = unwrap(
+    const invoice: MaintenanceInvoice = unwrap(
       await supabaseAdmin
         .from('maintenance_invoices')
         .insert({
@@ -72,6 +74,7 @@ maintenanceRouter.post(
         .select('*')
         .single()
     );
+    await notifyDues(invoice.flat_id, invoice.amount, invoice.period, invoice.id);
     res.status(201).json({ invoice });
   })
 );
@@ -82,7 +85,7 @@ maintenanceRouter.post(
   requireRole('admin'),
   validate({ params: idParam }),
   asyncHandler(async (req, res) => {
-    const invoice = unwrap(
+    const invoice: MaintenanceInvoice = unwrap(
       await supabaseAdmin
         .from('maintenance_invoices')
         .update({ status: 'paid', paid_at: new Date().toISOString() })
@@ -91,6 +94,7 @@ maintenanceRouter.post(
         .select('*')
         .single()
     );
+    await notifyDues(invoice.flat_id, invoice.amount, invoice.period, invoice.id, true);
     res.json({ invoice });
   })
 );

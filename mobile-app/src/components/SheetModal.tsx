@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   KeyboardAvoidingView,
   Modal,
@@ -6,10 +6,11 @@ import {
   Pressable,
   StyleSheet,
   View,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, radius, spacing } from '@/theme/tokens';
-import { Text } from './Text';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, radius, spacing } from "@/theme/tokens";
+import { Text } from "./Text";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   visible: boolean;
@@ -20,14 +21,27 @@ type Props = {
 
 /** Bottom-sheet container for short add/edit forms. */
 export function SheetModal({ visible, title, onClose, children }: Props) {
+  const insets = useSafeAreaInsets();
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.backdrop} onPress={onClose} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.wrap}
       >
-        <View style={styles.sheet}>
+        <View
+          style={[
+            styles.sheet,
+            {
+              paddingBottom: 48 + insets.bottom,
+            },
+          ]}
+        >
           <View style={styles.handle} />
           <View style={styles.header}>
             <Text variant="h3">{title}</Text>
@@ -43,16 +57,19 @@ export function SheetModal({ visible, title, onClose, children }: Props) {
 }
 
 const styles = StyleSheet.create({
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(45,49,66,0.4)' },
-  wrap: { flex: 1, justifyContent: 'flex-end' },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(45,49,66,0.4)",
+  },
+  wrap: { flex: 1, justifyContent: "flex-end" },
   sheet: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: radius.lg,
     borderTopRightRadius: radius.lg,
-    paddingBottom: spacing.xl,
+    //paddingBottom: spacing.xl,
   },
   handle: {
-    alignSelf: 'center',
+    alignSelf: "center",
     width: 40,
     height: 4,
     borderRadius: 2,
@@ -60,9 +77,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
@@ -71,8 +88,8 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: radius.pill,
     backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   body: { paddingHorizontal: spacing.lg, gap: spacing.md },
 });

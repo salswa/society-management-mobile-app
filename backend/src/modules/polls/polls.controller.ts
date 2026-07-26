@@ -8,6 +8,7 @@ import { supabaseAdmin } from '../../lib/supabase';
 import { unwrap } from '../../lib/db';
 import { badRequest } from '../../lib/errors';
 import { profileOf, societyIdOf } from '../../lib/context';
+import { notifyNewPoll } from '../../lib/push';
 import { idParam, uuidSchema } from '../../lib/validators';
 import type { Poll } from '../../types/database.types';
 import * as service from './polls.service';
@@ -117,6 +118,7 @@ pollsRouter.post(
       throw badRequest('Failed to create poll options');
     }
 
+    await notifyNewPoll(societyIdOf(req), poll.question, poll.id);
     res.status(201).json({ poll: { ...poll, options: optionsResult.data } });
   })
 );

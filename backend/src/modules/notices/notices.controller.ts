@@ -7,7 +7,9 @@ import { validate, body, params, query } from '../../middleware/validate';
 import { supabaseAdmin } from '../../lib/supabase';
 import { unwrap } from '../../lib/db';
 import { profileOf, societyIdOf } from '../../lib/context';
+import { notifyNewNotice } from '../../lib/push';
 import { idParam, paginationSchema } from '../../lib/validators';
+import type { Notice } from '../../types/database.types';
 
 const createBody = z.object({
   title: z.string().trim().min(1).max(120),
@@ -63,7 +65,7 @@ noticesRouter.post(
   validate({ body: createBody }),
   asyncHandler(async (req, res) => {
     const input = body<typeof createBody>(req);
-    const notice = unwrap(
+    const notice: Notice = unwrap(
       await supabaseAdmin
         .from('notices')
         .insert({
@@ -78,6 +80,7 @@ noticesRouter.post(
         .select('*')
         .single()
     );
+    await notifyNewNotice(societyIdOf(req), notice.title, notice.id);
     res.status(201).json({ notice });
   })
 );

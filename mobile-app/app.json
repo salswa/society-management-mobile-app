@@ -18,7 +18,7 @@
       "package": "com.urbanso.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#4361EE"
+        "backgroundColor": "#ECEFFE"
       }
     },
     "plugins": [
@@ -31,7 +31,7 @@
           "image": "./assets/adaptive-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#4361EE"
+          "backgroundColor": "#ECEFFE"
         }
       ]
     ],

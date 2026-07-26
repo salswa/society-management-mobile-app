@@ -2,6 +2,7 @@ import { supabaseAdmin, supabasePublic } from '../../lib/supabase';
 import { AppError, badRequest, conflict, notFound, unauthorized } from '../../lib/errors';
 import { unwrap } from '../../lib/db';
 import { flatOccupantId } from '../residents/residents.service';
+import { notifyNewSignup } from '../../lib/push';
 import type { Profile, UserRole } from '../../types/database.types';
 
 type RegisterInput = {
@@ -94,6 +95,9 @@ export async function register(input: RegisterInput): Promise<{ profile: Profile
           .single()
       );
     }
+
+    // Let admins know a new member is awaiting approval.
+    await notifyNewSignup(society_id, name, userId);
 
     const session = await login({ email, password });
     return { profile, session: session.session };
