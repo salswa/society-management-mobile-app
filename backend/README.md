@@ -87,17 +87,4 @@ scripts/seed.ts          bootstrap society + admin
 requests.http            end-to-end manual test suite
 ```
 
-## 7. Regenerating DB types (optional)
 
-`src/types/database.types.ts` is hand-authored to match the migrations. To regenerate
-from a live project with the Supabase CLI:
-
-```bash
-SUPABASE_PROJECT_ID=<ref> npm run gen:types
-```
-
-## Notes / scope
-
-- Push notifications are deferred; `profiles.expo_push_token` and
-  `POST /profile/push-token` are in place for when that phase is enabled.
-- Maintenance dues are tracked with manual "mark paid" (no payment gateway).
