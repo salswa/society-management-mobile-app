@@ -85,12 +85,3 @@ src/
   theme/tokens.ts          # colors, spacing, typography
   lib/                     # config (API URL), formatting
 ```
-
-## Deferred to the next pass
-
-Complaints/helpdesk, amenity booking, community polls, staff directory, maintenance dues,
-full admin management (towers/flats/residents CRUD), and push notifications.
-
-> Note: production **Hermes** builds run on EAS. Local `expo export` on Windows may fail
-> at the Hermes bytecode step due to an old local `hermesc`; this does not affect
-> `expo start` (dev) or EAS cloud builds.
